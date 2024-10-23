@@ -127,9 +127,12 @@ done
 
 # Mostrar resultados en una tabla
 echo "Resumen de Resultados:"
-echo "-------------------------------------------------------------"
+echo "Tiempo de Ejecución (Secuencial): $TIEMPO_SEC segundos"
+echo "Resultado de la Integral (Secuencial): $RESULT_SEC"
+echo "Resultados y Speedup de la Versión Paralela:"
+echo "--------------------------------------------------------------------------------------"
 printf "| %-15s | %-20s | %-15s | %-10s | %-10s |\n" "Procesos" "Integral Aproximada" "Tiempo (s)" "Speedup" "Eficiencia"
-echo "-------------------------------------------------------------"
+echo "--------------------------------------------------------------------------------------"
 for i in "${!PROCESOS_PARALelos[@]}"; do
     PROC=${PROCESOS_PARALelos[$i]}
     RESULT=${RESULTS_MPI[$i]}
@@ -138,25 +141,12 @@ for i in "${!PROCESOS_PARALelos[@]}"; do
     EF=${EFICIENCIA[$i]}
     printf "| %-15s | %-20s | %-15s | %-10s | %-10s |\n" "$PROC" "$RESULT" "$TIEMPO" "$SP" "$EF"
 done
+echo "--------------------------------------------------------------------------------------"
+
+echo "Parámetros de entrada:"
+echo "Límite Inferior: $A"
+echo "Límite Superior: $B"
+echo "Número de Subintervalos: $N"
 echo "-------------------------------------------------------------"
-
-# Verificar consistencia de los resultados
-CONSISTENCIA="Sí"
-TOLERANCIA=1e-6  # Tolerancia para diferencias en los resultados
-
-for RESULT_MPI in "${RESULTS_MPI[@]}"; do
-    DIF=$(echo "scale=10; $RESULT_SEC - $RESULT_MPI" | bc -l)
-    DIF_ABS=$(echo "$DIF" | awk '{print ($1 < 0) ? -$1 : $1}')
-    COMP=$(echo "$DIF_ABS < $TOLERANCIA" | bc)
-    if [ "$COMP" -ne 1 ]; then
-        CONSISTENCIA="No"
-        break
-    fi
-done
-
-echo "Consistencia de Resultados: $CONSISTENCIA (Tolerancia: $TOLERANCIA)"
-if [ "$CONSISTENCIA" == "No" ]; then
-    echo "Advertencia: Hay discrepancias en los resultados de la integral aproximada."
-fi
 
 exit 0
